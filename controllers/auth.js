@@ -2,9 +2,30 @@ import User from "../models/user.js";
 import bcrypt from "bcrypt";
 
 export const getLogin = (req, res, next) => {
-  console.log("Logged in ");
-  res.sendStatus(200);
-  next();
+  const email = req.body.email;
+  const pwd = req.body.password;
+  let currentUser;
+
+  User.findOne({ email: email })
+    .then((user) => {
+      if (user) {
+        currentUser = user;
+        return bcrypt.compare(pwd, user.password);
+      }
+    })
+    .then((isEqual) => {
+      // if user is not in database or password is not matching with database
+      if (!isEqual) {
+        return res
+          .status(400)
+          .json({ message: "Email or Password is incorrect !!" });
+      }
+      return res.status(200).json({ message: "User logged in !!" });
+    })
+    .then()
+    .catch((e) => {
+      console.log(e);
+    });
 };
 
 export const postSignup = (req, res, next) => {
@@ -16,7 +37,7 @@ export const postSignup = (req, res, next) => {
   // here find method will not work because it will return Cursor
   // findone will return null here
   User.findOne({ email: email })
-    .then((one) => {
+    .then((user) => {
       bcrypt
         .hash(pwd, 13)
         .then((hashedPwd) => {
@@ -30,7 +51,7 @@ export const postSignup = (req, res, next) => {
         })
         .then((u) => {
           //if we dont have an existing user with same email
-          if (!one) {
+          if (!user) {
             u.save();
             return res
               .status(201)
