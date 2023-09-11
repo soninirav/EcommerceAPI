@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 
 import userRouter from "./routes/user.js";
 import productRouter from "./routes/product.js";
+import { errorHandler } from "./routes/error.js";
 
 const app = express();
 
@@ -11,6 +12,8 @@ app.use(express.json());
 
 app.use("/users", userRouter);
 app.use("/products", productRouter);
+
+app.use(errorHandler);
 
 mongoose
   .connect("mongodb://localhost:27017/EcommerceAPI")

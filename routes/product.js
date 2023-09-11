@@ -4,13 +4,14 @@ import {
   getProduct,
   updateProduct,
 } from "../controllers/product.js";
+import { isAuth } from "../middleware/isAuth.js";
 
 const router = express.Router();
 
-router.post("/create", createProduct);
+router.post("/create", isAuth, createProduct);
 
 router.get("/:productId", getProduct);
 
-router.put("/:productId", updateProduct);
+router.put("/:productId", isAuth, updateProduct);
 
 export default router;

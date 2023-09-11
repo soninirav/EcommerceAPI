@@ -1,5 +1,6 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const getLogin = (req, res, next) => {
   const email = req.body.email;
@@ -20,7 +21,15 @@ export const getLogin = (req, res, next) => {
           .status(400)
           .json({ message: "Email or Password is incorrect !!" });
       }
-      return res.status(200).json({ message: "User logged in !!" });
+      const token = jwt.sign(
+        {
+          email: currentUser.email,
+          userId: currentUser._id,
+        },
+        "aB3$DfGh7PqRtYzXv1Ws5JkL8UiOp9Nm2",
+        { expiresIn: "1h" }
+      );
+      return res.status(200).json({ userId: currentUser._id, token: token });
     })
     .then()
     .catch((e) => {

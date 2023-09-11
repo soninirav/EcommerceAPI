@@ -26,6 +26,7 @@ export const createProduct = (req, res, next) => {
 };
 
 export const getProduct = (req, res, next) => {
+  console.log(typeof req.userId);
   Product.findOne({ _id: req.params.productId })
     .then((product) => {
       if (product) {
