@@ -18,9 +18,4 @@ const userSchema = new Schema({
     ],
   },
 });
-
-userSchema.methods.addToCart = (product) => {
-  console.log("in user model", product);
-};
-
 export default mongoose.model("Users", userSchema);

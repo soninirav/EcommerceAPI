@@ -39,7 +39,7 @@ export const createProduct = (req, res, next) => {
 };
 
 // return specific product details
-export const getProduct = (req, res, next) => {
+export const getProductDetails = (req, res, next) => {
   Product.findOne({ _id: req.params.productId })
     .then((product) => {
       if (product) {
@@ -104,15 +104,6 @@ export const deleteProduct = (req, res, next) => {
       Product.findOneAndDelete({ _id: req.params.productId }).then((p) => {
         res.status(200).json({ message: "product Deleted", deletedProduct: p });
       });
-    })
-    .catch((e) => next(e));
-};
-
-export const getCart = (req, res, next) => {
-  User.findOne({ _id: req.userId })
-    .then((user) => {
-      console.log(user);
-      user.addToCart([]);
     })
     .catch((e) => next(e));
 };

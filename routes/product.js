@@ -3,21 +3,18 @@ import {
   createProduct,
   deleteProduct,
   getAllProducts,
-  getCart,
-  getProduct,
+  getProductDetails,
   updateProduct,
 } from "../controllers/product.js";
 import { isAuth } from "../middleware/isAuth.js";
 
 const router = express.Router();
 
-router.get("/cart", isAuth, getCart);
-
 router.get("/", getAllProducts);
 
 router.post("/create", isAuth, createProduct);
 
-router.get("/:productId", getProduct);
+router.get("/:productId", getProductDetails);
 
 router.put("/:productId", isAuth, updateProduct);
 
