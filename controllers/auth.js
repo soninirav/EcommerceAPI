@@ -33,7 +33,7 @@ export const getLogin = (req, res, next) => {
     })
     .then()
     .catch((e) => {
-      console.log(e);
+      next(e);
     });
 };
 
@@ -69,10 +69,29 @@ export const postSignup = (req, res, next) => {
           return res.status(409).json({ message: "User Already Exists !!" });
         })
         .catch((e) => {
-          console.log(e);
+          next(e);
         });
     })
     .catch((e) => {
-      console.log(e);
+      next(e);
+    });
+};
+
+// to make user seller and seller a normal user
+export const isSellerUpdate = (req, res, next) => {
+  User.findOneAndUpdate(
+    { _id: req.userId },
+    { isSeller: req.body.isSeller },
+    { new: true }
+  )
+    .select("-password -cart")
+    .then((u) => {
+      res.status(200).json({
+        message: "your user data has been updated !!",
+        updatedUser: u,
+      });
+    })
+    .catch((e) => {
+      next(e);
     });
 };

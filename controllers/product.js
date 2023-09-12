@@ -1,32 +1,45 @@
 import Product from "../models/product.js";
+import User from "../models/user.js";
 
 export const createProduct = (req, res, next) => {
-  const title = req.body.title;
-  const price = req.body.price;
-  const description = req.body.description;
-  const imageUrl = req.body.imageUrl;
+  // get user data
+  User.findById(req.userId)
+    .then((user) => {
+      // if user is not seller
+      if (!user.isSeller) {
+        const err = new Error(
+          "You are not authorised seller to create product !!"
+        );
+        err.statusCode = 401;
+        throw err;
+      }
+      const title = req.body.title;
+      const price = req.body.price;
+      const description = req.body.description;
+      const imageUrl = req.body.imageUrl;
 
-  const product = new Product({
-    title: title,
-    price: price,
-    description: description,
-    imageUrl: imageUrl,
-  });
+      const product = new Product({
+        title: title,
+        price: price,
+        description: description,
+        imageUrl: imageUrl,
+        userId: req.userId,
+      });
 
-  product
-    .save()
-    .then((p) => {
-      res
-        .status(201)
-        .json({ message: "Product created successfully !!", productId: p._id });
+      product.save().then((p) => {
+        res.status(201).json({
+          message: "Product created successfully !!",
+          productId: p._id,
+        });
+      });
     })
     .catch((e) => {
-      console.log(e);
+      next(e);
     });
 };
 
+// return specific product details
 export const getProduct = (req, res, next) => {
-  console.log(typeof req.userId);
   Product.findOne({ _id: req.params.productId })
     .then((product) => {
       if (product) {
@@ -45,6 +58,17 @@ export const getProduct = (req, res, next) => {
     });
 };
 
+// return all products
+export const getAllProducts = (req, res, next) => {
+  Product.find()
+    .then((products) => {
+      res
+        .status(200)
+        .json({ totalProducts: products.length, products: products });
+    })
+    .catch((e) => next(e));
+};
+
 export const updateProduct = (req, res, next) => {
   Product.findOneAndReplace({ _id: req.params.productId }, req.body, {
     returnDocument: "after",
@@ -58,4 +82,37 @@ export const updateProduct = (req, res, next) => {
     .catch((e) => {
       return res.status(404).json({ message: "Provided ID is incorrect !!" });
     });
+};
+
+export const deleteProduct = (req, res, next) => {
+  Product.findOne({ _id: req.params.productId })
+    .then((product) => {
+      // if no product has given id
+      if (!product) {
+        const error = new Error("There is no product with given Id");
+        error.statusCode = 400;
+        throw error;
+      }
+      // if seller is trying to delete product which isnt created by him
+      if (product.userId.toString() != req.userId.toString()) {
+        const error = new Error(
+          "You are not authorised to perform this action !!"
+        );
+        error.statusCode = 403;
+        throw error;
+      }
+      Product.findOneAndDelete({ _id: req.params.productId }).then((p) => {
+        res.status(200).json({ message: "product Deleted", deletedProduct: p });
+      });
+    })
+    .catch((e) => next(e));
+};
+
+export const getCart = (req, res, next) => {
+  User.findOne({ _id: req.userId })
+    .then((user) => {
+      console.log(user);
+      user.addToCart([]);
+    })
+    .catch((e) => next(e));
 };
