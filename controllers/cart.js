@@ -4,7 +4,7 @@ import User from "../models/user.js";
 export const getCartItems = (req, res, next) => {
   User.findOne({ _id: req.userId })
     .then((user) => {
-      res.json(user);
+      res.json(user.cart);
     })
     .catch((e) => next(e));
 };
@@ -35,12 +35,14 @@ export const addProductToCart = (req, res, next) => {
             if (item.productId == productId) {
               found = true;
               item.quantity += quantity;
+              item.price = item.quantity * product.price;
             }
           });
           if (!found) {
             currentItems.items.push({
               productId: productId,
               quantity: quantity,
+              price: quantity * product.price,
             });
           }
           user.cart = currentItems;
@@ -86,6 +88,16 @@ export const deleteProductFromCart = (req, res, next) => {
           });
         })
         .catch((e) => next(e));
+    })
+    .catch((e) => next(e));
+};
+
+export const clearCart = (req, res, next) => {
+  User.findOne({ _id: req.userId })
+    .then((user) => {
+      user.cart = [];
+      user.save();
+      res.status(200).json("Your cart has been cleared !!");
     })
     .catch((e) => next(e));
 };

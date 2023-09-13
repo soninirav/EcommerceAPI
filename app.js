@@ -5,6 +5,8 @@ import userRouter from "./routes/user.js";
 import productRouter from "./routes/product.js";
 import cartRouter from "./routes/cart.js";
 import { errorHandler } from "./routes/error.js";
+import { getMyOrders, placeOrder } from "./controllers/order.js";
+import { isAuth } from "./middleware/isAuth.js";
 
 const app = express();
 
@@ -14,6 +16,8 @@ app.use(express.json());
 app.use("/users", userRouter);
 app.use("/products", productRouter);
 app.use("/cart", cartRouter);
+app.post("/order", isAuth, placeOrder);
+app.get("/myorder", isAuth, getMyOrders);
 
 app.use(errorHandler);
 
